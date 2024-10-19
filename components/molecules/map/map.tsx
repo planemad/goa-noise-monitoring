@@ -13,15 +13,22 @@ import "leaflet/dist/leaflet.css";
 import "leaflet-defaulticon-compatibility/dist/leaflet-defaulticon-compatibility.webpack.css";
 import "leaflet-defaulticon-compatibility";
 import "./styles.css";
+import useLocationStore from "@/store/locationStore";
+import { useFirestore } from "@/hooks/useFirestore";
 
 const LocationMarker = () => {
 	const [position, setPosition] = useState<LatLng | null>(null);
 	const map = useMap();
+	const { setLocation } = useLocationStore();
+	const { data } = useFirestore("sound_data");
+
+	console.log("data from firestore: ", data);
 
 	useEffect(() => {
 		map.locate().on("locationfound", function (e: LocationEvent) {
 			setPosition(e.latlng);
 			map.flyTo(e.latlng, map.getZoom());
+			setLocation(e.latlng.lat, e.latlng.lng);
 		});
 	}, [map]);
 
