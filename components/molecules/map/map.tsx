@@ -6,6 +6,7 @@ import {
 	CircleMarker,
 	Popup,
 	useMap,
+	Marker,
 } from "react-leaflet";
 import { LatLng, LocationEvent } from "leaflet";
 // IMPORTANT: the order matters!
@@ -15,14 +16,12 @@ import "leaflet-defaulticon-compatibility";
 import "./styles.css";
 import useLocationStore from "@/store/locationStore";
 import { useFirestore } from "@/hooks/useFirestore";
+import tzlookup from "tz-lookup";
 
 const LocationMarker = () => {
 	const [position, setPosition] = useState<LatLng | null>(null);
 	const map = useMap();
 	const { setLocation } = useLocationStore();
-	const { data } = useFirestore("sound_data");
-
-	console.log("data from firestore: ", data);
 
 	useEffect(() => {
 		map.locate().on("locationfound", function (e: LocationEvent) {
@@ -49,6 +48,8 @@ const LocationMarker = () => {
 };
 
 const Map = () => {
+	const { data } = useFirestore("sound_data");
+
 	return (
 		<MapContainer
 			center={[15.5809308, 73.7448377]}
@@ -61,6 +62,25 @@ const Map = () => {
 				url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
 			/>
 			<LocationMarker />
+			{data &&
+				data.map((point) => (
+					<Marker key={point.id} position={[point.lat, point.lng]}>
+						<Popup>
+							Noise Level: {point.noiseLevel} dB
+							<br />
+							Time:{" "}
+							{new Date(point.timestamp).toLocaleString("en-GB", {
+								day: "2-digit",
+								month: "2-digit",
+								year: "numeric",
+								hour: "2-digit",
+								minute: "2-digit",
+								hour12: true,
+								timeZone: tzlookup(point.lat, point.lng),
+							})}
+						</Popup>
+					</Marker>
+				))}
 		</MapContainer>
 	);
 };
