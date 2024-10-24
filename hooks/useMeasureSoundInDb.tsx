@@ -49,7 +49,9 @@ export default function useMeasureSoundInDb() {
 			addData({
 				lat,
 				lng,
-				noiseLevel: averageNoiseLevel,
+				average_noise_level: averageNoiseLevel,
+				min_noise_level: Math.min(...noiseLevels),
+				max_noise_level: Math.max(...noiseLevels),
 				timestamp: new Date().toISOString(),
 			});
 			stopRecording();

@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import useSoundStore from "@/store/soundStore";
 import { Progress } from "@/components/ui/progress";
@@ -10,11 +10,13 @@ interface SoundMonitoringProps {
 	isExpandBtmSheet: boolean;
 	handleExpandBtmSheet: () => void;
 	handleCollapseBtmSheet: () => void;
+	handleExtendBottomSheet: () => void;
 }
 
 const SoundMonitoring: React.FC<SoundMonitoringProps> = ({
 	isExpandBtmSheet,
 	handleExpandBtmSheet,
+	handleExtendBottomSheet,
 }) => {
 	const {
 		currentNoiseLevel,
@@ -31,6 +33,15 @@ const SoundMonitoring: React.FC<SoundMonitoringProps> = ({
 		setIsRecording(!isRecording);
 	};
 
+	useEffect(() => {
+		if (
+			noiseLevels.length ===
+			Number(process.env.NEXT_PUBLIC_MEASUREMENT_SAMPLE_SIZE)
+		) {
+			handleExtendBottomSheet();
+		}
+	}, [noiseLevels]);
+
 	const getButtonText = () => {
 		switch (true) {
 			case noiseLevels.length ===
@@ -45,12 +56,31 @@ const SoundMonitoring: React.FC<SoundMonitoringProps> = ({
 		}
 	};
 
+	const getMinNoiseLevel = () => {
+		return Math.min(...noiseLevels);
+	};
+
+	const getMaxNoiseLevel = () => {
+		return Math.max(...noiseLevels);
+	};
+
+	console.log(
+		"condition: ",
+		!isRecording &&
+			noiseLevels.length > 0 &&
+			noiseLevels.length <
+				Number(process.env.NEXT_PUBLIC_MEASUREMENT_SAMPLE_SIZE)
+	);
+
 	return (
 		<div className="p-4 flex flex-col items-center">
-			<Button className="bg-black text-white" onClick={toggleRecording}>
-				{isRecording ? <PauseIcon /> : <PlayIcon />}
-				{getButtonText()}
-			</Button>
+			{!isRecording && (
+				<Button className="bg-black text-white" onClick={toggleRecording}>
+					{isRecording ? <PauseIcon /> : <PlayIcon />}
+					{getButtonText()}
+				</Button>
+			)}
+
 			<div className="flex flex-col items-center mb-[12px] mt-[16px]">
 				{isRecording && (
 					<>
@@ -72,7 +102,15 @@ const SoundMonitoring: React.FC<SoundMonitoringProps> = ({
 							analyzing{" "}
 							<ReloadIcon className="ml-1 h-4 w-4 animate-spin inline-block" />
 						</p>
-						<Progress value={noiseLevels.length || 0} />
+						<Progress
+							value={
+								Math.round(
+									(noiseLevels.length /
+										Number(process.env.NEXT_PUBLIC_MEASUREMENT_SAMPLE_SIZE)) *
+										100
+								) || 0
+							}
+						/>
 					</div>
 				)}
 			{noiseLevels.length ===
@@ -84,6 +122,14 @@ const SoundMonitoring: React.FC<SoundMonitoringProps> = ({
 					</p>
 					<p className="text-3xl font-bold text-center mb-4">
 						{averageNoiseLevel} dB
+					</p>
+					<p className="text-sm text-center text-gray-500">min sound level</p>
+					<p className="text-lg font-bold text-center mb-4">
+						{getMinNoiseLevel()} dB
+					</p>
+					<p className="text-sm text-center text-gray-500">max sound level</p>
+					<p className="text-lg font-bold text-center mb-4">
+						{getMaxNoiseLevel()} dB
 					</p>
 				</div>
 			)}

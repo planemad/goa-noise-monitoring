@@ -9,14 +9,20 @@ export default function Home() {
 	useMeasureSoundInDb();
 	const [isExpandBtmSheet, setIsExpandBtmSheet] = useState(false);
 	const sheetRef = useRef<SheetRef>(null);
+
 	const handleExpandBtmSheet = () => {
 		setIsExpandBtmSheet(true);
-		sheetRef.current?.snapTo(0);
+		sheetRef.current?.snapTo(1);
 	};
 
 	const handleCollapseBtmSheet = () => {
 		setIsExpandBtmSheet(false);
-		sheetRef.current?.snapTo(1);
+		sheetRef.current?.snapTo(2);
+	};
+
+	const handleExtendBottomSheet = () => {
+		setIsExpandBtmSheet(true);
+		sheetRef.current?.snapTo(0);
 	};
 
 	return (
@@ -26,8 +32,8 @@ export default function Home() {
 				<Sheet
 					ref={sheetRef}
 					isOpen={true}
-					snapPoints={[200, 70]}
-					initialSnap={1}
+					snapPoints={[300, 200, 70]}
+					initialSnap={2}
 					onClose={() => {}}
 					disableDrag
 				>
@@ -37,6 +43,7 @@ export default function Home() {
 								isExpandBtmSheet={isExpandBtmSheet}
 								handleExpandBtmSheet={handleExpandBtmSheet}
 								handleCollapseBtmSheet={handleCollapseBtmSheet}
+								handleExtendBottomSheet={handleExtendBottomSheet}
 							/>
 						</Sheet.Content>
 					</Sheet.Container>

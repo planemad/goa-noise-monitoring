@@ -1,6 +1,8 @@
 export type SoundDataPoint = {
 	lat: number;
 	lng: number;
-	noiseLevel: number;
+	average_noise_level: number;
+	min_noise_level: number;
+	max_noise_level: number;
 	timestamp: string;
 };
