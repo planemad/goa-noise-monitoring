@@ -50,6 +50,22 @@ const LocationMarker = () => {
 const Map = () => {
 	const { data } = useFirestore("sound_data");
 
+	useEffect(() => {
+		if (data && data.length > 0) {
+			// Convert data to CSV
+			const headers = Object.keys(data[0]).join(',');
+			const csvRows = data.map(point => 
+				Object.values(point).map(value => 
+					typeof value === 'string' ? `"${value}"` : value
+				).join(',')
+			);
+			const csvString = [headers, ...csvRows].join('\n');
+			
+			console.log("Sound data (CSV format):");
+			console.log(csvString);
+		}
+	}, [data]);
+
 	return (
 		<MapContainer
 			center={[15.5809308, 73.7448377]}
